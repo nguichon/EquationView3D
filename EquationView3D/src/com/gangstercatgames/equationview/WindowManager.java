@@ -58,6 +58,7 @@ public class WindowManager {
 
 		mWindow.setText("Equation View 3D - " + Main.VERSION_STRING);
 		mWindow.setBounds(100, 100, 800, 600);
+		mWindow.setMinimumSize( 300, 300 );
 	}
 
 	/**
@@ -88,5 +89,9 @@ public class WindowManager {
 	 */
 	public boolean isClosed() {
 		return mWindow.isDisposed();
+	}
+
+	public void Start3D() {
+		mGraph.Start3DThread();
 	}
 }

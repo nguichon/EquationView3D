@@ -6,7 +6,7 @@ package com.gangstercatgames.equationview;
  * @author Nicholas Guichon
  */
 public class Main {
-	public static String VERSION_STRING = "v0.19.7.29pre";
+	public static String VERSION_STRING = "v0.19.7.30pre";
 
 	/**
 	 * Program entry point.
@@ -14,6 +14,7 @@ public class Main {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		WindowManager.get().Start3D();
 		while (!WindowManager.get().isClosed()) {
 			WindowManager.get().Update();
 		}

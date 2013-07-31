@@ -93,6 +93,7 @@ public class EquationsController extends Composite {
 		});
 
 		this.setSize(250, 200);
+		ToggleOpen();
 	}
 
 	/**
