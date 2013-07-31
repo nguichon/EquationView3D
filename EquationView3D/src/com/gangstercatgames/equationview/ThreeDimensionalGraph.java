@@ -1,8 +1,11 @@
 package com.gangstercatgames.equationview;
 
+import java.awt.MouseInfo;
 import java.util.Date;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.opengl.GLCanvas;
 import org.eclipse.swt.opengl.GLData;
@@ -22,8 +25,15 @@ import org.lwjgl.util.glu.GLU;
  * @author Nicholas Guichon
  */
 public class ThreeDimensionalGraph extends Composite {
+	//OpenGL Data
 	private GLCanvas mCanvas;
 	private GLData mData;
+	
+	//Mouse Tracking Data
+	private boolean mTrackingMouse = false;
+	private Point mLastMouseLocation;
+	private float[] mAxisRotations = new float[3];
+	private int X = 0; private int Y = 1; private int Z = 2;
 
 	/**
 	 * Constructor to create the composite on it's parent
@@ -75,6 +85,25 @@ public class ThreeDimensionalGraph extends Composite {
 				GL11.glLoadIdentity();
 			}
 		});
+		
+		mCanvas.addMouseListener( new MouseListener() {
+
+			@Override
+			public void mouseDoubleClick(MouseEvent arg0) {
+			}
+
+			@Override
+			public void mouseDown(MouseEvent arg0) {
+				mTrackingMouse = true;
+				mLastMouseLocation = Display.getCurrent().getCursorLocation();
+			}
+
+			@Override
+			public void mouseUp(MouseEvent arg0) {
+				mTrackingMouse = false;
+			}
+			
+		});
 
 	}
 
@@ -115,9 +144,17 @@ public class ThreeDimensionalGraph extends Composite {
 				}
 				
 				ClearBuffer();
-				SetRotation( 45.0f, 5.0f, 0.0f, 0.0f);
-				SetRotation( 45.0f, 0.0f, 5.0f, 0.0f);
-				//SetRotation( 45.0f, 1.0f, 1.0f, 0.0f);
+				SetRotation( mAxisRotations[X], 1.0f, 0.0f, 0.0f);
+				SetRotation( mAxisRotations[Y], 0.0f, 1.0f, 0.0f);
+				SetRotation( mAxisRotations[Z], 0.0f, 0.0f, 1.0f);
+				if( mTrackingMouse ) {
+					Point p = Display.getCurrent().getCursorLocation();
+					
+					StepRotationAroundY( (float)(mLastMouseLocation.x - p.x) / 10);
+					StepRotationAroundX( (float)(mLastMouseLocation.y - p.y) / 10);
+
+					mLastMouseLocation = p;
+				}
 				DrawAxes();
 				
 				mCanvas.swapBuffers();
@@ -186,4 +223,9 @@ public class ThreeDimensionalGraph extends Composite {
 		GL11.glVertex3f( 0.0f, 0.0f, 15.0f );
 		GL11.glEnd();
 	}
+	
+	//Functions to increment rotation by a specified amount.
+	private void StepRotationAroundX( float increment ) { mAxisRotations[X] += increment; }
+	private void StepRotationAroundY( float increment ) { mAxisRotations[Y] += increment; }
+	private void StepRotationAroundZ( float increment ) { mAxisRotations[Z] += increment; }
 }
