@@ -6,6 +6,7 @@ import java.util.Date;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.events.MouseWheelListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.opengl.GLCanvas;
 import org.eclipse.swt.opengl.GLData;
@@ -34,6 +35,9 @@ public class ThreeDimensionalGraph extends Composite {
 	private Point mLastMouseLocation;
 	private float[] mAxisRotations = new float[3];
 	private int X = 0; private int Y = 1; private int Z = 2;
+	private float mZoomValue = 1.0f;
+	private float mRatio = 1.0f;
+	private final static float ZOOM_SPEED = 0.5f;
 
 	/**
 	 * Constructor to create the composite on it's parent
@@ -78,6 +82,7 @@ public class ThreeDimensionalGraph extends Composite {
 				GL11.glViewport(0, 0, size.x, size.y);
 				GL11.glMatrixMode(GL11.GL_PROJECTION);
 				GL11.glLoadIdentity();
+				mRatio = (float) size.x / (float) size.y;
 				GLU.gluPerspective( 0.0f, (float) size.x / (float) size.y,
 						0.1f, 100.0f );
 
@@ -101,6 +106,19 @@ public class ThreeDimensionalGraph extends Composite {
 			@Override
 			public void mouseUp(MouseEvent arg0) {
 				mTrackingMouse = false;
+			}
+			
+		});
+		
+		mCanvas.addMouseWheelListener( new MouseWheelListener() {
+
+			@Override
+			public void mouseScrolled(MouseEvent arg0) {
+				if( arg0.count > 0 ) {
+					mZoomValue *= 1 + ZOOM_SPEED;
+				} else {
+					mZoomValue /= 1 + ZOOM_SPEED;
+				}
 			}
 			
 		});
@@ -144,20 +162,12 @@ public class ThreeDimensionalGraph extends Composite {
 				}
 				
 				ClearBuffer();
-				SetRotation( mAxisRotations[X], 1.0f, 0.0f, 0.0f);
-				SetRotation( mAxisRotations[Y], 0.0f, 1.0f, 0.0f);
-				SetRotation( mAxisRotations[Z], 0.0f, 0.0f, 1.0f);
-				if( mTrackingMouse ) {
-					Point p = Display.getCurrent().getCursorLocation();
-					
-					StepRotationAroundY( (float)(mLastMouseLocation.x - p.x) / 10);
-					StepRotationAroundX( (float)(mLastMouseLocation.y - p.y) / 10);
-
-					mLastMouseLocation = p;
-				}
+				TrackMouse();
+				SetupCamera();
 				DrawAxes();
 				
 				mCanvas.swapBuffers();
+				
 				Display.getDefault().asyncExec(this);
 			}
 
@@ -175,8 +185,22 @@ public class ThreeDimensionalGraph extends Composite {
 		GL11.glLoadIdentity();
 	}
 	
-	private void SetRotation( float angle, float x, float y, float z ) {
-		GL11.glRotatef( angle, x, y, z);
+	private void SetupCamera() {
+		GL11.glScaled( mZoomValue / mRatio, mZoomValue, 0.1);
+		GL11.glRotatef( mAxisRotations[X], 1.0f, 0.0f, 0.0f);
+		GL11.glRotatef( mAxisRotations[Y], 0.0f, 1.0f, 0.0f);
+		GL11.glRotatef( mAxisRotations[Z], 0.0f, 0.0f, 1.0f);
+	}
+	
+	private void TrackMouse() {
+		if( mTrackingMouse ) {
+			Point p = Display.getCurrent().getCursorLocation();
+			
+			StepRotationAroundY( (float)(mLastMouseLocation.x - p.x) / 5);
+			StepRotationAroundX( (float)(mLastMouseLocation.y - p.y) / 5);
+
+			mLastMouseLocation = p;
+		}
 	}
 	
 	/**
@@ -191,7 +215,7 @@ public class ThreeDimensionalGraph extends Composite {
 		GL11.glVertex3f( 15.0f, 0.0f, 0.0f );
 		GL11.glEnd();
 		
-		GL11.glLineWidth( 1.0f );
+		GL11.glLineWidth( 0.5f );
 		for( int i = -15; i <= 15; i++ ) {
 			GL11.glBegin(GL11.GL_LINES);
 			GL11.glVertex3f( -15.0f, i, 0.0f );
@@ -207,7 +231,7 @@ public class ThreeDimensionalGraph extends Composite {
 		GL11.glVertex3f( 0.0f, 15.0f, 0.0f );
 		GL11.glEnd();
 		
-		GL11.glLineWidth( 1.0f );
+		GL11.glLineWidth( 0.5f );
 		for( int i = -15; i <= 15; i++ ) {
 			GL11.glBegin(GL11.GL_LINES);
 			GL11.glVertex3f( i, -15.0f, 0.0f );
