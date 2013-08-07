@@ -1,5 +1,7 @@
 package com.gangstercatgames.equationview;
 
+import java.util.HashMap;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -21,6 +23,7 @@ public class EquationsController extends Composite {
 	private Button mBtnRevertChanges;
 	private Text mTxtEquation;
 	private boolean mOpen = true;
+	private String mCurrentEquation = "";
 
 	/**
 	 * Constructor to create the composite on it's parent
@@ -60,6 +63,20 @@ public class EquationsController extends Composite {
 		gridData.horizontalAlignment = GridData.FILL;
 		gridData.grabExcessHorizontalSpace = true;
 		mBtnGraph.setLayoutData(gridData);
+		mBtnGraph.addSelectionListener(new SelectionListener() {
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent arg0) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				GraphEquation();
+			}
+
+		});
 
 		// Button to revert equation to the last equation graphed
 		mBtnRevertChanges = new Button(this, SWT.PUSH);
@@ -68,6 +85,17 @@ public class EquationsController extends Composite {
 		gridData.horizontalAlignment = GridData.FILL;
 		gridData.grabExcessHorizontalSpace = true;
 		mBtnRevertChanges.setLayoutData(gridData);
+		mBtnRevertChanges.addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetDefaultSelected(SelectionEvent arg0) {
+			}
+
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				RevertEquation();
+			}
+
+		});
 
 		// Button to open or close the equation drawer
 		mBtnDrawerControl = new Button(this, SWT.PUSH);
@@ -78,11 +106,8 @@ public class EquationsController extends Composite {
 		gridData.horizontalAlignment = GridData.FILL;
 		mBtnDrawerControl.setLayoutData(gridData);
 		mBtnDrawerControl.addSelectionListener(new SelectionListener() {
-
 			@Override
 			public void widgetDefaultSelected(SelectionEvent arg0) {
-				// TODO Auto-generated method stub
-
 			}
 
 			@Override
@@ -117,5 +142,13 @@ public class EquationsController extends Composite {
 			this.setLocation(this.getLocation().x, 0);
 		}
 		mOpen = !mOpen;
+	}
+
+	private void RevertEquation() {
+		mTxtEquation.setText(mCurrentEquation);
+	}
+
+	private void GraphEquation() {
+		mCurrentEquation = mTxtEquation.getText();
 	}
 }
