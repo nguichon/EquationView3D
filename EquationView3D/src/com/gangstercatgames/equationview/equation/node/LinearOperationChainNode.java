@@ -1,5 +1,6 @@
 package com.gangstercatgames.equationview.equation.node;
 
+import java.util.Hashtable;
 import java.util.LinkedList;
 
 public class LinearOperationChainNode extends EquationNode {
@@ -16,11 +17,11 @@ public class LinearOperationChainNode extends EquationNode {
 	}
 
 	@Override
-	public float Solve() {
-		float f = mBase.Solve();
+	public float Solve(Hashtable<String, Float> variables) {
+		float f = mBase.Solve(variables);
 		
 		for( Operation o : mOperations ) {
-			f = o.Operate( f );
+			f = o.Operate( f, variables );
 		}
 		
 		return f;
@@ -79,8 +80,8 @@ public class LinearOperationChainNode extends EquationNode {
 			mValue = valueOfOperation;
 		}
 		
-		public float Operate( float left ) {
-			return mType.OperateBetweenTwo( left, mValue.Solve() );
+		public float Operate( float left, Hashtable<String, Float> variables ) {
+			return mType.OperateBetweenTwo( left, mValue.Solve( variables ) );
 		}
 	}
 }

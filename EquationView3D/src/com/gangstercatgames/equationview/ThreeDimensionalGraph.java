@@ -19,6 +19,8 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GLContext;
 import org.lwjgl.util.glu.GLU;
 
+import com.gangstercatgames.equationview.equation.Equation;
+
 /**
  * Composite that wraps all OpenGL functions and renders the functions to its
  * canvas.
@@ -38,6 +40,7 @@ public class ThreeDimensionalGraph extends Composite {
 	private float mZoomValue = 1.0f;
 	private float mRatio = 1.0f;
 	private final static float ZOOM_SPEED = 0.5f;
+	private WindowManager mHost;
 
 	/**
 	 * Constructor to create the composite on it's parent
@@ -47,9 +50,10 @@ public class ThreeDimensionalGraph extends Composite {
 	 * @param style
 	 *            SWT styles
 	 */
-	public ThreeDimensionalGraph(Composite parent, int style) {
+	public ThreeDimensionalGraph(Composite parent, int style, WindowManager wm) {
 		super(parent, style);
 
+		mHost = wm;
 		// Create the OpenGLData
 		mData = new GLData();
 		mData.doubleBuffer = true;
@@ -165,6 +169,7 @@ public class ThreeDimensionalGraph extends Composite {
 				TrackMouse();
 				SetupCamera();
 				DrawAxes();
+				RenderMesh();
 				
 				mCanvas.swapBuffers();
 				
@@ -174,6 +179,52 @@ public class ThreeDimensionalGraph extends Composite {
 		};
 
 		Display.getDefault().asyncExec(r);
+	}
+
+	protected void RenderMesh() {
+		Equation eq = mHost.GetGraph();
+		if( eq.CanGraph() ) {
+			int start = eq.GetStart();
+			float step = eq.GetStep();
+			int count = eq.GetSteps();
+			/*GL11.glBegin(GL11.GL_LINES);
+			for( int i = 0; i < count; i++ ) {
+				for( int j = 0; j < count; j++ ) {
+					float z = eq.GetPoint( i, j );
+					float y = j * step + start;
+					float x = i * step + start;
+					
+					GL11.glVertex3f( x, y, z );
+				}
+			}
+			GL11.glEnd();*/
+
+			System.out.println(start + ":" + step + ":" + count);
+			
+			GL11.glBegin(GL11.GL_QUADS);
+			for( int i = 0; i < count - 1; i++ ) {
+				for( int j = 0; j < count - 1; j++ ) {
+					float z = eq.GetPoint( i, j );
+					float y = j * step + start;
+					float x = i * step + start;
+					GL11.glVertex3f( -x, -y, z );
+					z = eq.GetPoint( i+1, j+1 );
+					y = (j+1) * step + start;
+					x = (i+1) * step + start;
+					GL11.glVertex3f( -x, -y, z );
+					z = eq.GetPoint( i+1, j );
+					y = j * step + start;
+					x = (i+1) * step + start;
+					GL11.glVertex3f( -x, -y, z );
+					z = eq.GetPoint( i, j+1 );
+					y = (j+1) * step + start;
+					x = i * step + start;
+					GL11.glVertex3f( -x, -y, z );
+				}
+			}
+			GL11.glEnd();
+			
+		}
 	}
 
 	/**
@@ -223,7 +274,7 @@ public class ThreeDimensionalGraph extends Composite {
 			GL11.glEnd();
 		}
 
-		//Draw the Y axis
+		//Draw the X axis
 		GL11.glLineWidth( 2.5f ); 
 		GL11.glColor3f( 0.0f, 1.0f, 0.0f );
 		GL11.glBegin(GL11.GL_LINES);

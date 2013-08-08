@@ -11,6 +11,8 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
+import com.gangstercatgames.equationview.equation.Equation;
+
 /**
  * Handles the widgets associated with the equation editor.
  * 
@@ -22,6 +24,7 @@ public class EquationsController extends Composite {
 	private Button mBtnGraph;
 	private Button mBtnRevertChanges;
 	private Text mTxtEquation;
+	private Equation mEquation = new Equation( "0" );
 	private boolean mOpen = true;
 	private String mCurrentEquation = "";
 
@@ -143,6 +146,10 @@ public class EquationsController extends Composite {
 		}
 		mOpen = !mOpen;
 	}
+	
+	public Equation GetGraph() {
+		return mEquation;
+	}
 
 	private void RevertEquation() {
 		mTxtEquation.setText(mCurrentEquation);
@@ -150,5 +157,7 @@ public class EquationsController extends Composite {
 
 	private void GraphEquation() {
 		mCurrentEquation = mTxtEquation.getText();
+		mEquation = new Equation( mCurrentEquation );
+		mEquation.CalculateMesh( 0.25f, 80, -10 );
 	}
 }

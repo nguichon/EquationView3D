@@ -6,6 +6,8 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
+import com.gangstercatgames.equationview.equation.Equation;
+
 /**
  * Manager for the viewer's window. Only one viewer may be used at any given
  * time.
@@ -32,7 +34,7 @@ public class WindowManager {
 
 		// Create the two parts
 		mEquationControl = new EquationsController(mWindow, SWT.BORDER);
-		mGraph = new ThreeDimensionalGraph(mWindow, SWT.NONE);
+		mGraph = new ThreeDimensionalGraph(mWindow, SWT.NONE, this);
 
 		// Add the resize listener
 		mWindow.addListener(SWT.Resize, new Listener() {
@@ -93,5 +95,9 @@ public class WindowManager {
 
 	public void Start3D() {
 		mGraph.Start3DThread();
+	}
+	
+	public Equation GetGraph() {
+		return mEquationControl.GetGraph();
 	}
 }

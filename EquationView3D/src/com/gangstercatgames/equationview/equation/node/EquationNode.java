@@ -1,5 +1,6 @@
 package com.gangstercatgames.equationview.equation.node;
 
+import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -30,8 +31,15 @@ public abstract class EquationNode {
 				"(?<=[^\\*\\/\\+\\-\\(\\^])\\(", "*(");
 		equationString = equationString.replaceAll(
 				"\\)(?=[^\\*\\/\\+\\-\\)\\^])", ")*");
-		System.out.println("Parsing the value \"" + equationString + "\".");
-
+		equationString = equationString.replaceAll(
+				"(?<=[^\\*\\/\\+\\-\\(\\^])x", "*x");
+		equationString = equationString.replaceAll(
+				"x(?=[^\\*\\/\\+\\-\\)\\^])", "x*");
+		equationString = equationString.replaceAll(
+				"(?<=[^\\*\\/\\+\\-\\(\\^])y", "*y");
+		equationString = equationString.replaceAll(
+				"y(?=[^\\*\\/\\+\\-\\)\\^])", "y*");
+		
 		// First step to is to find and handle parenthesiseseseseseseseseses
 		Queue<String> parenthesesValues = new LinkedList<String>();
 		while (equationString.indexOf('(') != -1) {
@@ -154,6 +162,14 @@ public abstract class EquationNode {
 					ParseEquationString(right));
 			return toReturn;
 		}
+		
+		if( equationString.equals("x") ) {
+			return new VariableNode("x");
+		}
+
+		if( equationString.equals("y") ) {
+			return new VariableNode("y");
+		}
 
 		return new RawValueNode(Float.parseFloat(equationString));
 	}
@@ -174,5 +190,5 @@ public abstract class EquationNode {
 		}
 	}
 
-	abstract public float Solve();
+	abstract public float Solve(Hashtable<String, Float> variables);
 }
